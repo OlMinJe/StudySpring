@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메시지 창</title>
+</head>
+<body>
+  <!--[CDATA 를 사용해서 자바스크립트에서 모델에서 지정한 값 호출 실시 : 주석까지 필수 등록]  -->
+  <script th:inline="javascript">
+    /*<[CDATA[*/
+    let message = [[${message}]];
+    alert(message);
+
+    // 페이지를 이동 시켜줌 -> 이동시켜줄 페이지의 경로를 받아와야 함.
+    location.replace([[${searchUrl}]]);
+    /*]]>*/
+  </script>
+</body>
+</html>
