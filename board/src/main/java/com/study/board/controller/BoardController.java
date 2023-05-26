@@ -3,12 +3,15 @@ package com.study.board.controller;
 import com.study.board.entity.Board;
 import com.study.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -70,12 +73,34 @@ public class BoardController {
 
     /**
      * 게시물 리스트 출력하기 - 컨트롤러에서 데이터를 담아서 화면에서 보여지는 부분에 전송하기
+     * 페이징 처리 - 5/26
      * boardlist.html
      */
     @GetMapping("/board/list")
-    public String boardList(Model model) { // 이때 데이터를 담아서 보내주는게 Model
-        model.addAttribute("list", boardService.boardList());
-            // addAttribute로 추가해주기 (list라는 이름으로 boardService.boardList()을 보내기)
+    public String boardList(Model model, // 이때 데이터를 담아서 보내주는게 Model
+                            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                            // domain 안에 있는 Pageable 사용,  sort: 정렬 기준 컬럼, direction: 정렬 순서
+                            String searchKeyword) {
+
+        Page<Board> list = null;
+        if(searchKeyword == null) {
+            list = boardService.boardList(pageable);
+        } else { // 검색한 단어가 들어왔을 때는
+            list = boardService.boardSearchList(searchKeyword, pageable);
+        }
+
+        // 리스트에 넣어줄 페이지를 따로 처리하기 - 출력은 html 파일에서
+        //Page<Board> list = boardService.boardList(pageable);
+        int nowPage = list.getPageable().getPageNumber() + 1; // 0으로 시작하기 때문에 +1 해줘야함
+        int startPage = Math.max(nowPage -  4, 1);  // 1페이지인 경우 마이너스가 되기 때문에 최대값 비교로 처리해줘야 한다.
+        int endPage = Math.min(nowPage + 5, list.getTotalPages());
+
+        model.addAttribute("list", list);
+        // addAttribute로 추가해주기 (list라는 이름으로 boardService.boardList()을 보내기)
+        model.addAttribute("nowPage", nowPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
         return "boardlist";
     }
 

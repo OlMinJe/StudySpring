@@ -1,6 +1,8 @@
 package com.study.board.repository;
 
 import com.study.board.entity.Board;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +22,6 @@ import org.springframework.stereotype.Repository;
 public interface BoardRepository extends JpaRepository<Board, Integer> {
             // JpaRepository란? 인터페이스이며, 엔티티에 있는 데이터를 조회하거나 저장과 변경을 할 수 있게 해줌
             // Board 클래스, primary key로 설정한 필드의 자료형
-
+    Page<Board> findByTitleContaining(String searchKeyword, Pageable pageable);
+    // repositoru에 메소드를 추가하였기 때문에 서비스에도 추가해준다.
 }

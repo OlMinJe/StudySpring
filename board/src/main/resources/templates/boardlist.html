@@ -11,21 +11,30 @@
 </head>
 <body>
     <div class="layout">
-      <table>
+        <table>
         <thead>
-          <tr>
+            <tr>
             <th>글번호</th>
             <th>제목</th>
-          </tr>
+            </tr>
         </thead>
         <tbody>
-          <tr th:each="board : ${list}">
+            <tr th:each="board : ${list}">
             <!-- BoardController에서 받은 list 출력 / 이때 데이터 전송 이름을 list로 설정했기 때문에 list로 보냄 -->
             <td th:text="${board.id}"></td>
             <td><a th:text="${board.title}" th:href="@{/board/view(id=${board.id})}">제목</a></td>
-          </tr>
+            </tr>
         </tbody>
-      </table>
+         </table>
+
+        <th:block th:each="page : ${#numbers.sequence(startPage, endPage)}">
+            <a th:if="${page != nowPage}" th:href="@{/board/list(page = ${page - 1}, searchKeyword = ${param.searchKeyword})}" th:text="${page}"></a>
+            <strong th:if="${page == nowPage}" th:text="${page}" style="color:red"></strong>
+        </th:block>
+        <form th:action="@{/board/list}" method="get">
+            <input type="text" name="searchKeyword">
+            <button type="submit">검색</button>
+        </form>
    </div>
 </body>
 </html>

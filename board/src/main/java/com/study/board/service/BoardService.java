@@ -3,6 +3,8 @@ package com.study.board.service;
 import com.study.board.entity.Board;
 import com.study.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,7 +39,7 @@ public class BoardService {
         String projectPath = System.getProperty("user.dir") + "/src/main/resources/static/files";
         // 저장할 파일의 이름 - 식별자를 이용하여 생성하기
         UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "+" + file.getOriginalFilename(); // 식별자 + 파일명
+        String fileName = uuid + "_" + file.getOriginalFilename(); // 식별자 + 파일명
         // 파일을 생성할 때 projectPath라는 경로에 fileName 이라는 이름으로 파일을 저장
         File saveFile = new File(projectPath, fileName);
         // 저장이됨.
@@ -46,17 +48,27 @@ public class BoardService {
         // 그리고 board에 넣어주기
         board.setFilename(fileName);
         board.setFilepath("/files/" + fileName);
-
         boardRepository.save(board); // save(엔티티) -> 전달해준다고 생각하면 됨
     }
 
     /**
      * 게시물 리스트 불러오기
+     * 페이징을 위한 값들 받아오기 5.26
      * @return boardRepository.findAll()
      */
-    public List<Board> boardList() {
-        return boardRepository.findAll(); // findeAll()은 list에 담긴 Board를 반환해준다.
+    public Page<Board> boardList(Pageable pageable) {
+        return boardRepository.findAll(pageable); // findeAll()은 list에 담긴 Board를 반환해준다.
     }
+
+    /**
+     * 검색 기능 처리
+     * @return
+     */
+    public Page<Board> boardSearchList(String searchKeyword, Pageable pageable) {
+
+        return boardRepository.findByTitleContaining(searchKeyword, pageable);
+    }
+
 
     /**
      * 특정 게시글 불러오기(상세보기)
